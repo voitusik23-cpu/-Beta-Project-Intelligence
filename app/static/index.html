@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080d14">
+  <title>Beta Project Intelligence</title><link rel="icon" type="image/svg+xml" href="/static/brand.svg"><link rel="stylesheet" href="/static/style.css?v=20261102-ui5">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand"><img class="brand-mark" src="/static/brand.svg" alt=""><div><b>BETA PROJECT<br>INTELLIGENCE</b><small id="brand-tagline">НЕЗАВИСИМЫЙ WEB3 РАДАР</small></div></div>
+  <nav id="nav">
+    <div class="nav-label" data-group="discover">ПОИСК</div>
+    <button class="active" data-nav="radar">◉  ЖИВОЙ РАДАР</button><button data-nav="new">✦  НОВЫЕ ПРОЕКТЫ</button><button data-nav="incubation">◈  РАННЯЯ СТАДИЯ</button><button data-nav="testnet">⌘  ТЕСТНЕТ И БАЛЛЫ</button>
+    <div class="nav-label" data-group="opportunities">ВОЗМОЖНОСТИ</div>
+    <button data-nav="waitlist">◷  ЛИСТ ОЖИДАНИЯ</button><button data-nav="funded">⬡  С ФИНАНСИРОВАНИЕМ</button><button data-nav="late">↗  ПОЗДНИЙ ВХОД</button>
+    <div class="nav-label" data-group="tracking">ОТСЛЕЖИВАНИЕ</div>
+    <button data-nav="myTop">★  МОИ РЕКОМЕНДАЦИИ</button><button data-nav="reviewQueue">☷  ОЧЕРЕДЬ ПРОВЕРКИ</button><button data-nav="watchlist">☆  ИЗБРАННОЕ</button><button data-nav="rejected">▧  ОТЛОЖЕННЫЕ / ОТКЛОНЁННЫЕ</button><button data-nav="dossiers">▤  ДОСЬЕ ПРОЕКТОВ</button>
+    <div class="nav-label" data-group="config">НАСТРОЙКИ</div>
+    <button data-nav="sources">⌁  ИСТОЧНИКИ</button><button data-nav="settings">⚙  ПАРАМЕТРЫ</button>
+  </nav>
+  <div class="side-foot"><span class="green-dot"></span><span id="local-db">ЛОКАЛЬНАЯ БАЗА АКТИВНА</span><br><small id="local-only">Данные хранятся на этом устройстве</small></div>
+</aside>
+<main>
+  <header>
+    <div><div class="eyebrow">BETA PROJECT INTELLIGENCE <span id="live-pill" class="live-pill">● ЛОКАЛЬНО</span></div><h1 id="heading">Живой радар</h1><p id="subheading">Ранние сигналы о проектах, финансировании и возможностях участия.</p></div>
+    <div class="header-actions"><select class="language-select" id="language" aria-label="Язык интерфейса"><option value="ru">Русский</option><option value="en">English</option></select><a id="export-csv" class="button quiet" href="/api/export.csv">Экспорт CSV</a><a id="export-json" class="button quiet" href="/api/export.json">Экспорт JSON</a><button class="button" id="screen">☷  Первичный отбор</button><button class="button primary" id="scan">↻  Проверить источники</button></div>
+  </header>
+  <section class="metrics">
+    <article><span id="metric-label-projects">ПРОЕКТЫ В БАЗЕ</span><strong id="metric-projects">—</strong><small id="metric-hint-projects">Локальные досье проектов</small></article>
+    <article><span id="metric-label-signals">НОВЫЕ СИГНАЛЫ</span><strong id="metric-signals">—</strong><small id="metric-hint-signals">Ссылки на источники</small></article>
+    <article><span id="metric-label-waitlists">ЛИСТЫ ОЖИДАНИЯ</span><strong id="metric-waitlists">—</strong><small id="metric-hint-waitlists">Сигналы для проверки</small></article>
+    <article><span id="metric-label-sources">ИСТОЧНИКИ НА СВЯЗИ</span><strong id="metric-sources">—</strong><small id="metric-hint-sources">Готовы к сбору</small></article>
+  </section>
+  <div id="load-notice" class="load-notice hidden" role="status" aria-live="polite"><span id="load-notice-text"></span><button id="load-retry" class="button quiet">Повторить загрузку</button></div>
+  <div class="content-grid">
+    <section class="panel projects-panel"><div class="panel-head"><div><div id="feed-label" class="eyebrow">ЛЕНТА ОБНАРУЖЕНИЙ</div><h2 id="list-title">Последние находки</h2></div><div class="controls"><input id="search" placeholder="Поиск проектов…"><select id="sort"><option value="recent">Сначала новые</option><option value="score">По оценке возможности</option></select></div></div><div id="project-list" class="project-list"></div><div id="empty" class="empty hidden">Пока проектов нет. Проверьте подключённые источники, чтобы найти ранние сигналы.</div></section>
+    <aside class="right-column">
+      <section class="panel"><div class="panel-head"><div><div id="source-health" class="eyebrow">СОСТОЯНИЕ ИСТОЧНИКОВ</div><h2 id="connectors">Подключения</h2></div><button id="view-all" class="text-button" data-view="sources">Все источники</button></div><div id="source-mini"></div></section>
+      <section class="panel"><div class="panel-head"><div><div id="changelog-label" class="eyebrow">ИЗМЕНЕНИЯ</div><h2 id="recent-events">Последние события</h2></div></div><div id="event-list" class="event-list"></div></section>
+      <div id="disclaimer" class="disclaimer">Ранние сигналы — это зацепки для самостоятельной проверки. Оценки и стадии приблизительны и не являются инвестиционной рекомендацией.</div>
+    </aside>
+  </div>
+</main>
+<dialog id="detail"></dialog><div id="toast" class="toast"></div><script src="/static/app.js?v=20261102-ui5"></script>
+</body>
+</html>

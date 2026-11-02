@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.py[cod]
+data/*.sqlite3
+data/backups/
+.env
+.env.*
+!.env.example

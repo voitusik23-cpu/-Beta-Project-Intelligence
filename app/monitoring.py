@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 
 from .database import connect
-from .discovery import collect_github, collect_rss_source, now
+from .discovery import collect_github, collect_rss_source, now, safe_error
 
 
 def _parse_time(value: str | None) -> datetime | None:
@@ -49,7 +49,7 @@ def run_source(source_id: int) -> dict:
                 db.execute("UPDATE sources SET status='ERROR',last_checked=?,detail=? WHERE id=?", (now(), error, source_id))
         return {"source_id": source_id, "source": name, "status": status, "result": result}
     except Exception as exc:
-        error = str(exc)[:1500]
+        error = safe_error(exc)
         with connect() as db:
             db.execute("UPDATE monitoring_runs SET finished_at=?,status='ERROR',error=? WHERE id=?", (now(), error, run_id))
             db.execute("UPDATE sources SET status='ERROR',last_checked=?,detail=? WHERE id=?", (now(), error, source_id))

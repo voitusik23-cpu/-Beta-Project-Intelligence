@@ -16,6 +16,8 @@ class IntelligenceApiTests(unittest.TestCase):
         database.DATA_DIR = Path(self.temp.name)
         database.DB_PATH = database.DATA_DIR / "api-test.sqlite3"
         database.init_db()
+        with database.connect() as db:
+            db.execute("UPDATE sources SET enabled=0")
         _, self.project_id = upsert_signal("Nova testnet", "Nova testnet is live", "https://example.org/nova", "Ethereum Blog RSS")
         self.client = TestClient(app)
         self.client.__enter__()
@@ -40,6 +42,17 @@ class IntelligenceApiTests(unittest.TestCase):
         telegram = next(source for source in sources if source["name"] == "Telegram")
         response = self.client.patch(f"/api/sources/{telegram['id']}", json={"enabled":True})
         self.assertEqual(response.status_code, 422)
+
+    def test_source_registry_exposes_distinct_success_and_error_timestamps(self):
+        with database.connect() as db:
+            source_id = db.execute("SELECT id FROM sources WHERE name='Ethereum Blog RSS'").fetchone()[0]
+            db.execute("INSERT INTO monitoring_runs(source_id,started_at,finished_at,status) VALUES(?,?,?,'SUCCESS')",
+                       (source_id, "2026-11-01T10:00:00+00:00", "2026-11-01T10:00:01+00:00"))
+            db.execute("INSERT INTO monitoring_runs(source_id,started_at,finished_at,status,error) VALUES(?,?,?,'ERROR',?)",
+                       (source_id, "2026-11-02T10:00:00+00:00", "2026-11-02T10:00:01+00:00", "HTTP 403"))
+        source = next(item for item in self.client.get("/api/sources").json() if item["id"] == source_id)
+        self.assertEqual(source["last_success_at"], "2026-11-01T10:00:00+00:00")
+        self.assertEqual(source["last_error_at"], "2026-11-02T10:00:00+00:00")
 
     def test_projects_endpoint_paginates_without_dropping_records(self):
         for index in range(3):

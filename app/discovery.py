@@ -6,6 +6,7 @@ import html
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -43,8 +44,41 @@ def now() -> str:
 
 def fetch(url: str, timeout: int = 15) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json, application/rss+xml, application/xml, text/xml"})
-    with urllib.request.urlopen(req, timeout=timeout) as response:
-        return response.read(3_000_000)
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                return response.read(3_000_000)
+        except urllib.error.HTTPError as exc:
+            if exc.code not in {429, 500, 502, 503, 504} or attempt == 2:
+                raise
+            retry_after = exc.headers.get("Retry-After")
+            if exc.code == 429 and not retry_after:
+                raise
+            try:
+                if retry_after:
+                    try:
+                        delay = int(retry_after)
+                    except ValueError:
+                        retry_at = email.utils.parsedate_to_datetime(retry_after)
+                        delay = int((retry_at - datetime.now(retry_at.tzinfo)).total_seconds())
+                    if delay > 30:
+                        raise exc
+                    delay = max(0, delay)
+                else:
+                    delay = 2 ** attempt
+            except (TypeError, ValueError, OverflowError):
+                delay = 2 ** attempt
+            time.sleep(delay)
+
+
+def safe_error(exc: Exception) -> str:
+    """Return useful error metadata without persisting URLs, query strings, or response bodies."""
+    if isinstance(exc, urllib.error.HTTPError):
+        return f"HTTP {exc.code}"
+    if isinstance(exc, urllib.error.URLError):
+        reason = exc.reason
+        return f"Network error ({type(reason).__name__})"
+    return type(exc).__name__
 
 
 def clean_text(value: str) -> str:
@@ -157,8 +191,9 @@ def collect_rss() -> dict:
                 if link: counts += int(upsert_signal(title, desc, link, name, date)[0])
             with connect() as db: db.execute("UPDATE sources SET status='ACTIVE',last_checked=?,detail='Feed fetched successfully.' WHERE id=?", (now(), sid))
         except Exception as exc:
-            errors.append(f"{name}: {exc}")
-            with connect() as db: db.execute("UPDATE sources SET status='ERROR',last_checked=?,detail=? WHERE id=?", (now(), str(exc)[:500], sid))
+            error = safe_error(exc)
+            errors.append(f"{name}: {error}")
+            with connect() as db: db.execute("UPDATE sources SET status='ERROR',last_checked=?,detail=? WHERE id=?", (now(), error, sid))
     return {"source_count": len(feeds), "new_projects_or_signals": counts, "errors": errors}
 
 
@@ -181,25 +216,38 @@ def collect_rss_source(source_id: int) -> dict:
         with connect() as db: db.execute("UPDATE sources SET status='ACTIVE',last_checked=?,detail='Feed fetched successfully.' WHERE id=?", (now(), sid))
         return {"source_count": 1, "new_projects_or_signals": counts, "errors": []}
     except Exception as exc:
-        with connect() as db: db.execute("UPDATE sources SET status='ERROR',last_checked=?,detail=? WHERE id=?", (now(), str(exc)[:500], sid))
-        return {"source_count": 1, "new_projects_or_signals": counts, "errors": [f"{name}: {exc}"]}
+        error = safe_error(exc)
+        with connect() as db: db.execute("UPDATE sources SET status='ERROR',last_checked=?,detail=? WHERE id=?", (now(), error, sid))
+        return {"source_count": 1, "new_projects_or_signals": counts, "errors": [f"{name}: {error}"]}
 
 
 def collect_github() -> dict:
     with connect() as db: source = db.execute("SELECT id FROM sources WHERE name='GitHub Repository Search'").fetchone()
-    counts, errors = 0, []
+    counts, errors, queries_checked = 0, [], 0
+    last_request_at = None
     for query in GITHUB_QUERIES:
         url = "https://api.github.com/search/repositories?" + urllib.parse.urlencode({"q": query + " pushed:>2025-01-01", "sort": "updated", "order": "desc", "per_page": 20})
         try:
+            request_at = time.monotonic()
+            if last_request_at is not None:
+                delay = max(0, 7 - (request_at - last_request_at))
+                if delay:
+                    time.sleep(delay)
+                    request_at = time.monotonic()
+            last_request_at = request_at
+            queries_checked += 1
             data = json.loads(fetch(url))
             for repo in data.get("items", []):
                 desc = repo.get("description") or ""
                 payload = f"{desc} {repo.get('full_name','')} {repo.get('topics',[])}"
                 counts += int(upsert_signal(repo.get("name", ""), payload, repo.get("html_url", ""), "GitHub Repository Search", repo.get("updated_at"), repo.get("homepage"))[0])
-        except Exception as exc: errors.append(f"{query}: {exc}")
+        except Exception as exc:
+            errors.append(f"{query}: {safe_error(exc)}")
+            if isinstance(exc, urllib.error.HTTPError) and exc.code in {403, 429}:
+                break
     with connect() as db:
         db.execute("UPDATE sources SET status=?,last_checked=?,detail=? WHERE id=?", ("ERROR" if errors else "ACTIVE", now(), ("; ".join(errors)[:500] if errors else "Public repository search completed; unauthenticated rate limits apply."), source["id"]))
-    return {"queries": len(GITHUB_QUERIES), "new_projects_or_signals": counts, "errors": errors}
+    return {"queries": queries_checked, "new_projects_or_signals": counts, "errors": errors}
 
 
 def collect_all() -> dict:
@@ -286,7 +334,7 @@ def collect_web_search() -> dict:
                     "DuckDuckGo Web Discovery"
                 )[0])
         except Exception as exc:
-            errors.append(f"{query}: {exc}")
+            errors.append(f"{query}: {safe_error(exc)}")
     detail = (
         f"Public web search checked {len(WEB_SEARCH_QUERIES)} queries; "
         f"{found} results; {counts} new projects/signals."

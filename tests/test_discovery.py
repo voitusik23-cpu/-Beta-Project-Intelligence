@@ -1,11 +1,14 @@
 import tempfile
 import unittest
+import urllib.error
+import io
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
 from app import database
-from app.discovery import infer_stage, upsert_signal
+from app.discovery import collect_github, collect_rss_source, fetch, infer_stage, safe_error, upsert_signal
 from app.screening import classify_project, screen_projects
 
 
@@ -39,6 +42,68 @@ class DiscoveryTests(unittest.TestCase):
         stage, note = infer_stage("Join the waitlist")
         self.assertEqual(stage, "Waitlist")
         self.assertIn("verify", note)
+
+    def test_fetch_retries_rate_limit_with_bounded_retry_after(self):
+        response = type("Response", (), {"__enter__": lambda self: self, "__exit__": lambda *args: None,
+                                          "read": lambda self, limit: b"ok"})()
+        error = urllib.error.HTTPError("https://example.org/feed?token=secret", 429, "limited", {"Retry-After": "1"}, io.BytesIO())
+        with patch("app.discovery.urllib.request.urlopen", side_effect=[error, response]) as request, \
+             patch("app.discovery.time.sleep") as sleep:
+            self.assertEqual(fetch("https://example.org/feed?token=secret"), b"ok")
+        self.assertEqual(request.call_count, 2)
+        sleep.assert_called_once_with(1)
+
+    def test_error_reporting_does_not_include_url_or_query_credentials(self):
+        error = urllib.error.HTTPError("https://example.org/feed?token=secret", 403, "denied", {}, io.BytesIO())
+        self.assertEqual(safe_error(error), "HTTP 403")
+
+    def test_rss_adapter_parses_and_persists_raw_item_and_signal(self):
+        feed = b'''<?xml version="1.0"?><rss version="2.0"><channel><item>
+        <title>Nova Protocol testnet opens</title><link>https://nova.example/testnet</link>
+        <description>Nova Protocol public testnet is live.</description><pubDate>Mon, 02 Nov 2026 10:00:00 +0000</pubDate>
+        </item></channel></rss>'''
+        with database.connect() as db:
+            source_id = db.execute("SELECT id FROM sources WHERE name='Ethereum Blog RSS'").fetchone()[0]
+            db.execute("UPDATE sources SET status='ACTIVE',enabled=1 WHERE id=?", (source_id,))
+        with patch("app.discovery.fetch", return_value=feed):
+            result = collect_rss_source(source_id)
+        self.assertEqual(result["errors"], [])
+        with database.connect() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM project_sources WHERE source_id=? AND url=?", (source_id, "https://nova.example/testnet")).fetchone()[0], 1)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM raw_items WHERE source_id=? AND url=?", (source_id, "https://nova.example/testnet")).fetchone()[0], 1)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM project_events").fetchone()[0], 1)
+
+    def test_github_adapter_parses_and_persists_repository_result(self):
+        payload = {"items": [{"name": "Nova", "full_name": "nova/nova", "description": "Public Web3 testnet protocol", "html_url": "https://github.com/nova/nova", "updated_at": "2026-11-02T10:00:00Z", "homepage": "https://nova.example"}]}
+        import app.discovery as discovery
+        with database.connect() as db:
+            source_id = db.execute("SELECT id FROM sources WHERE name='GitHub Repository Search'").fetchone()[0]
+        with patch.object(discovery, "GITHUB_QUERIES", ["web3 testnet"]), patch("app.discovery.fetch", return_value=json.dumps(payload).encode()):
+            result = collect_github()
+        self.assertEqual(result["errors"], [])
+        self.assertEqual(result["queries"], 1)
+        with database.connect() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM project_sources WHERE source_id=? AND url=?", (source_id, "https://github.com/nova/nova")).fetchone()[0], 1)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM raw_items WHERE source_id=? AND url=?", (source_id, "https://github.com/nova/nova")).fetchone()[0], 1)
+
+    def test_github_search_is_paced_and_stops_on_rate_limit(self):
+        import app.discovery as discovery
+        with patch.object(discovery, "GITHUB_QUERIES", ["one", "two"]), \
+             patch("app.discovery.time.monotonic", side_effect=[100, 102, 107]), \
+             patch("app.discovery.time.sleep") as sleep, \
+             patch("app.discovery.fetch", return_value=b'{"items":[]}') as request:
+            result = collect_github()
+        self.assertEqual(result["errors"], [])
+        self.assertEqual(request.call_count, 2)
+        sleep.assert_called_once_with(5)
+        self.assertEqual(result["queries"], 2)
+
+        rate_limit = urllib.error.HTTPError("https://api.github.com/search/repositories", 403, "rate limit", {}, io.BytesIO())
+        with patch.object(discovery, "GITHUB_QUERIES", ["one", "two"]), patch("app.discovery.fetch", side_effect=rate_limit) as request:
+            result = collect_github()
+        self.assertEqual(len(result["errors"]), 1)
+        self.assertEqual(request.call_count, 1)
+        self.assertEqual(result["queries"], 1)
 
     def test_source_catalog_and_resumable_review_schema_exist(self):
         with database.connect() as db:

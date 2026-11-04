@@ -124,7 +124,12 @@ def toggle_watchlist(project_id: int):
 @app.get("/api/sources")
 def sources():
     with connect() as db:
-        return [dict(r) for r in db.execute("SELECT s.*, (SELECT status FROM monitoring_runs mr WHERE mr.source_id=s.id ORDER BY mr.id DESC LIMIT 1) AS last_run_status, (SELECT error FROM monitoring_runs mr WHERE mr.source_id=s.id ORDER BY mr.id DESC LIMIT 1) AS last_run_error FROM sources s ORDER BY source_group,kind,name")]
+        return [dict(r) for r in db.execute("""SELECT s.*,
+            (SELECT status FROM monitoring_runs mr WHERE mr.source_id=s.id ORDER BY mr.id DESC LIMIT 1) AS last_run_status,
+            (SELECT error FROM monitoring_runs mr WHERE mr.source_id=s.id ORDER BY mr.id DESC LIMIT 1) AS last_run_error,
+            (SELECT started_at FROM monitoring_runs mr WHERE mr.source_id=s.id AND mr.status='SUCCESS' ORDER BY mr.id DESC LIMIT 1) AS last_success_at,
+            (SELECT started_at FROM monitoring_runs mr WHERE mr.source_id=s.id AND mr.status='ERROR' ORDER BY mr.id DESC LIMIT 1) AS last_error_at
+            FROM sources s ORDER BY source_group,kind,name""")]
 
 
 @app.patch("/api/sources/{source_id}")

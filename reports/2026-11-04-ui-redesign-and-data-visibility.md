@@ -3,6 +3,8 @@
 ## Scope and safety
 Updated the existing Beta Project Intelligence application on `codex/finish-ui-20261102`. No second project was created. The visual audit and smoke checks used a copy of the local SQLite database. The original DB SHA-256 before and after was `AD360E998F75465FA92023519E9F45F489450603B97D8ECBFEA9944798A44C72`; environment files and user data were not changed.
 
+Verified UI/API/documentation changes are committed as `38864f6` (`Redesign dashboard and clarify project data visibility`) and pushed to `origin/codex/finish-ui-20261102`.
+
 ## Findings: actual data vs earlier report
 The local DB snapshot contains 386 projects, 668 project/source associations, 67 registered source rows, and 641 project events. Review statuses are 361 REJECTED, 19 REVIEW, and 6 PENDING. The review queue contains 24 records. The radar is a curated active subset and may include an already completed REVIEW dossier. Source status snapshot: 3 ACTIVE, one enabled ERROR, and remaining entries in NEEDS VALIDATION, API REQUIRED, DISABLED, ACCESS REQUIRED, or MANUAL.
 

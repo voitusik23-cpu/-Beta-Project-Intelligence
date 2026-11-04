@@ -78,13 +78,13 @@ def home():
 
 
 @app.get("/api/projects")
-def projects(stage: str | None = None, q: str | None = None, watchlist: bool = False, limit: int = Query(500, ge=1, le=1000)):
+def projects(stage: str | None = None, q: str | None = None, watchlist: bool = False, limit: int = Query(500, ge=1, le=1000), offset: int = Query(0, ge=0)):
     sql = "SELECT p.*, r.level1_status, r.level1_reason, r.level2_status, r.verification_status, r.translated_description, r.score_rationale, r.manual_status, (SELECT GROUP_CONCAT(DISTINCT s.name) FROM project_sources ps JOIN sources s ON s.id=ps.source_id WHERE ps.project_id=p.id) AS source_names, (SELECT COUNT(*) FROM project_sources ps WHERE ps.project_id=p.id) AS signal_count, (SELECT COUNT(*) FROM funding_rounds fr WHERE fr.project_id=p.id) AS funding_count FROM projects p LEFT JOIN project_reviews r ON r.project_id=p.id WHERE 1=1"
     args: list = []
     if stage: sql += " AND p.stage=?"; args.append(stage)
     if q: sql += " AND (p.name LIKE ? OR p.description LIKE ? OR p.category LIKE ?)"; args.extend([f"%{q}%"]*3)
     if watchlist: sql += " AND p.watchlisted=1"
-    sql += " ORDER BY p.last_updated DESC LIMIT ?"; args.append(limit)
+    sql += " ORDER BY p.last_updated DESC,p.id DESC LIMIT ? OFFSET ?"; args.extend([limit, offset])
     with connect() as db: return [dict(r) for r in db.execute(sql, args)]
 
 

@@ -31,6 +31,9 @@ def run_source(source_id: int) -> dict:
             result = collect_rss_source(source_id)
         elif name == "GitHub Repository Search":
             result = collect_github()
+        elif name == "DuckDuckGo Web Discovery":
+            from .discovery import collect_web_search
+            result = collect_web_search()
         else:
             result = {"source_count": 0, "new_projects_or_signals": 0, "errors": ["No implemented connector for this source."]}
         errors = result.get("errors", [])
@@ -55,7 +58,7 @@ def run_source(source_id: int) -> dict:
 
 def run_manual_scan() -> dict:
     with connect() as db:
-        rows = db.execute("SELECT id FROM sources WHERE status IN ('ACTIVE','NEEDS VALIDATION','ERROR') AND (kind='RSS' OR name='GitHub Repository Search') AND url IS NOT NULL ORDER BY kind,name").fetchall()
+        rows = db.execute("SELECT id FROM sources WHERE status IN ('ACTIVE','NEEDS VALIDATION','ERROR') AND (kind='RSS' OR name IN ('GitHub Repository Search','DuckDuckGo Web Discovery')) AND url IS NOT NULL ORDER BY kind,name").fetchall()
     results = [run_source(row["id"]) for row in rows]
     return {"checked_at": now(), "source_count": len(results), "sources": results,
             "new_projects_or_signals": sum((r.get("result") or {}).get("new_projects_or_signals", 0) for r in results),
@@ -65,7 +68,7 @@ def run_manual_scan() -> dict:
 async def monitor_loop(stop: asyncio.Event) -> None:
     while not stop.is_set():
         with connect() as db:
-            rows = [dict(row) for row in db.execute("SELECT id,cadence_minutes,last_checked FROM sources WHERE enabled=1 AND status='ACTIVE' AND cadence_minutes>0 AND (kind='RSS' OR name='GitHub Repository Search')")]
+            rows = [dict(row) for row in db.execute("SELECT id,cadence_minutes,last_checked FROM sources WHERE enabled=1 AND status='ACTIVE' AND cadence_minutes>0 AND (kind='RSS' OR name IN ('GitHub Repository Search','DuckDuckGo Web Discovery'))")]
         current = datetime.now(timezone.utc)
         for row in rows:
             checked = _parse_time(row["last_checked"])

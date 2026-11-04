@@ -45,6 +45,7 @@ class DiscoveryTests(unittest.TestCase):
             names = {row[0] for row in db.execute("SELECT name FROM sources")}
             self.assertIn("Incrypted Airdrops (Telegram)", names)
             self.assertIn("DeFiLlama Raises", names)
+            self.assertIn("DuckDuckGo Web Discovery", names)
             self.assertIn("Paradigm", names)
             statuses = {row[0] for row in db.execute("SELECT status FROM sources")}
             self.assertIn("API REQUIRED", statuses)

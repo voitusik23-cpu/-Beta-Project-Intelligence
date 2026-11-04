@@ -41,6 +41,24 @@ class IntelligenceApiTests(unittest.TestCase):
         response = self.client.patch(f"/api/sources/{telegram['id']}", json={"enabled":True})
         self.assertEqual(response.status_code, 422)
 
+    def test_projects_endpoint_paginates_without_dropping_records(self):
+        for index in range(3):
+            upsert_signal(
+                f"Nova candidate {index}",
+                "A public testnet project for pagination coverage.",
+                f"https://example.org/nova-{index}",
+                "Ethereum Blog RSS",
+            )
+
+        first_page = self.client.get("/api/projects", params={"limit": 2, "offset": 0}).json()
+        second_page = self.client.get("/api/projects", params={"limit": 2, "offset": 2}).json()
+        ids = [project["id"] for project in first_page + second_page]
+
+        self.assertEqual(len(first_page), 2)
+        self.assertEqual(len(second_page), 2)
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual(len(self.client.get("/api/projects", params={"limit": 10}).json()), 4)
+
     def test_deep_review_cannot_be_completed_without_evidence(self):
         response = self.client.patch(f"/api/projects/{self.project_id}/review", json={"level2_status":"COMPLETE"})
         self.assertEqual(response.status_code, 422)

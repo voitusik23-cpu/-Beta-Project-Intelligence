@@ -61,4 +61,5 @@ SOURCE_CATALOG = [
     ("Solscan", "On-chain analytics", "API", "https://docs.solscan.io/", "API REQUIRED", 720, "API access/plan and project addresses required."),
     ("Arbiscan", "On-chain analytics", "API", "https://docs.arbiscan.io/", "API REQUIRED", 720, "API key and project contract addresses required."),
     ("BaseScan", "On-chain analytics", "API", "https://docs.basescan.org/", "API REQUIRED", 720, "API key and project contract addresses required."),
+    ("DuckDuckGo Web Discovery", "Web Search", "Web Search", "https://html.duckduckgo.com/html/", "ACTIVE", 120, "Broad public web search across project sites, indexed X, Reddit, Telegram and launch/testnet signals; search index coverage varies."),
 ]

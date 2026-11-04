@@ -10,13 +10,31 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 from datetime import datetime, timezone
 
 from .database import connect
 
 UA = "BetaProjectIntelligence/0.1 (local research tool)"
 TERMS = ["testnet", "devnet", "waitlist", "beta", "points", "airdrop", "launch", "protocol", "blockchain", "web3", "crypto", "rollup", "layer 2", "zk", "wallet", "defi", "incubation", "mainnet"]
-GITHUB_QUERIES = ["web3 testnet", "crypto protocol beta", "blockchain devnet"]
+GITHUB_QUERIES = [
+    "web3 testnet",
+    "crypto protocol beta",
+    "blockchain devnet",
+    "zk rollup testnet",
+    "depin testnet",
+    "AI agent protocol testnet",
+    "RWA blockchain testnet",
+    "modular blockchain devnet",
+    "restaking protocol testnet",
+    "decentralized storage testnet",
+    "cross chain protocol beta",
+    "account abstraction wallet beta",
+    "privacy protocol testnet",
+    "web3 grants accelerator",
+    "onchain gaming beta testnet",
+    "decentralized compute network testnet",
+]
 
 
 def now() -> str:
@@ -186,3 +204,103 @@ def collect_github() -> dict:
 
 def collect_all() -> dict:
     return {"rss": collect_rss(), "github": collect_github(), "checked_at": now()}
+
+
+# Broad public-web discovery via DuckDuckGo's public HTML search endpoint.
+# Search-engine indexing; public results only, no authenticated social scraping.
+WEB_SEARCH_QUERIES = [
+    'web3 crypto testnet join early access',
+    'web3 protocol public beta waitlist points',
+    'crypto startup testnet devnet launch 2026',
+    'site:x.com web3 testnet waitlist points launch',
+    'site:x.com crypto protocol early access public beta',
+    'site:reddit.com/r/ethdev testnet launch web3',
+    'site:reddit.com/r/defi new protocol beta testnet',
+    'site:t.me web3 testnet airdrop points project',
+    'web3 grants accelerator cohort applications open',
+    'crypto funding round startup protocol 2026',
+    'new layer 2 blockchain testnet developer launch',
+    'web3 AI agent protocol beta testnet launch',
+]
+
+
+class _DDGResults(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.results = []
+        self._title = False
+        self._snippet = False
+        self._current = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        classes = attrs.get("class", "").split()
+        if tag == "a" and "result__a" in classes:
+            href = html.unescape(attrs.get("href", ""))
+            parsed = urllib.parse.urlparse(href)
+            if parsed.netloc.endswith("duckduckgo.com"):
+                href = urllib.parse.parse_qs(parsed.query).get("uddg", [href])[0]
+            self._current = {"title": "", "url": urllib.parse.unquote(href), "snippet": ""}
+            self._title = True
+        elif self.results and "result__snippet" in classes:
+            self._snippet = True
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._title:
+            self._title = False
+            if self._current and self._current["url"].startswith(("http://", "https://")):
+                self.results.append(self._current)
+                self._current = None
+        if tag in {"a", "div"} and self._snippet:
+            self._snippet = False
+
+    def handle_data(self, data):
+        if self._title and self._current is not None:
+            self._current["title"] += data
+        elif self._snippet and self.results:
+            self.results[-1]["snippet"] += data
+
+
+def collect_web_search() -> dict:
+    with connect() as db:
+        source = db.execute("SELECT id FROM sources WHERE name='DuckDuckGo Web Discovery'").fetchone()
+    if not source:
+        return {"queries": 0, "items_found": 0, "new_projects_or_signals": 0,
+                "errors": ["DuckDuckGo Web Discovery source is not registered."]}
+    source_id = source["id"]
+    found, counts, errors = 0, 0, []
+    for query in WEB_SEARCH_QUERIES:
+        url = "https://html.duckduckgo.com/html/?" + urllib.parse.urlencode({"q": query, "kl": "us-en"})
+        try:
+            request = urllib.request.Request(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36",
+                "Accept-Language": "en-US,en;q=0.9",
+            })
+            body = urllib.request.urlopen(request, timeout=20).read(2_000_000).decode("utf-8", "replace")
+            parser = _DDGResults()
+            parser.feed(body)
+            for item in parser.results:
+                found += 1
+                counts += int(upsert_signal(
+                    item["title"], item["snippet"], item["url"],
+                    "DuckDuckGo Web Discovery"
+                )[0])
+        except Exception as exc:
+            errors.append(f"{query}: {exc}")
+    detail = (
+        f"Public web search checked {len(WEB_SEARCH_QUERIES)} queries; "
+        f"{found} results; {counts} new projects/signals."
+    )
+    with connect() as db:
+        db.execute(
+            "UPDATE sources SET status=?,enabled=1,last_checked=?,detail=? WHERE id=?",
+            ("ERROR" if errors and not found else "ACTIVE", now(),
+             (detail + (" Errors: " + "; ".join(errors)[:300] if errors else ""))[:500],
+             source_id)
+        )
+    return {
+        "queries": len(WEB_SEARCH_QUERIES),
+        "items_found": found,
+        "new_projects_or_signals": counts,
+        "errors": errors,
+    }

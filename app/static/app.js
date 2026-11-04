@@ -24,9 +24,12 @@ const copy = {
     },
     ui: {
       brand: 'INDEPENDENT WEB3 RADAR', local: '● LOCAL', exportCsv: 'Export CSV', exportJson: 'Export JSON', scan: '↻  Scan sources',
-      projects: 'TRACKED PROJECTS', projectsHint: 'Local project dossiers', signals: 'NEW SIGNALS', signalsHint: 'Unique source references',
-      waitlists: 'WAITLISTS', waitlistsHint: 'Signals to verify', sources: 'CONNECTED SOURCES', sourcesHint: 'Ready to collect',
-      feed: 'DISCOVERY FEED', latest: 'Latest discoveries', search: 'Search projects…', recent: 'Most recent', scoreSort: 'Opportunity score',
+      projects: 'PROJECT DOSSIERS', projectsHint: 'Local records and screening totals', signals: 'SOURCE LINKS', signalsHint: 'Saved evidence links',
+      waitlists: 'WAITLISTS', waitlistsHint: 'Signals to verify', sources: 'ACTIVE SOURCES', sourcesHint: 'Ready to collect',
+      feed: 'DISCOVERY FEED', latest: 'Latest discoveries', search: 'Search projects…', recent: 'Most recent', scoreSort: 'Opportunity score', nameSort: 'Project name',
+      categoryFilter: 'All categories', stageFilter: 'All stages', screeningFilter: 'All screening states', filterEmpty: 'No projects match these filters. Clear a filter or change your search.',
+      resultCount: (shown, total) => `Showing ${shown} of ${total} dossiers`, excludedCount: count => `${count} are outside the active review pool; see Deferred / Rejected.`,
+      statusLabels: { PENDING: 'Pending', REVIEW: 'Review', PASS: 'Passed', REJECTED: 'Rejected' },
       sourceHealth: 'SOURCE HEALTH', connectors: 'Connectors', viewAll: 'View all', changelog: 'CHANGELOG', recentEvents: 'Recent events',
       disclaimer: 'Early signals are leads for manual research. Scores and stages are heuristic, and do not represent investment advice.',
       localDb: 'LOCAL DATABASE ACTIVE', localOnly: 'Data stays on this device', empty: 'No projects yet. Scan connected sources to discover early signals.',
@@ -40,7 +43,7 @@ const copy = {
       notIdentified: 'Not identified', unknown: 'Unknown', addWatch: 'Add to watchlist', removeWatch: 'Remove from watchlist', firstSeen: 'First seen',
       evidenceLink: 'Evidence', scanDone: 'Scan complete', newSignals: 'new signals', scanFailed: 'Scan failed',
       nothingChanged: 'No changes recorded yet.', projectDiscovered: 'Project discovered', newSourceSignal: 'New source signal',
-      localSettings: 'Local data and collection', localSettingsText: 'Data is stored in the project’s folder as SQLite. Set BPI_DATA_DIR to change the database location. Configure extra public RSS URLs in BPI_RSS_FEEDS as a comma-separated list, then restart the app. Enabled RSS and GitHub connectors run in the background at their saved intervals (default 120 minutes); “Scan sources” starts a manual check. Sources that require credentials or access are never polled.',
+      localSettings: 'Local data and collection', localSettingsText: 'Data is stored in the project’s folder as SQLite. Set BPI_DATA_DIR to change the database location. Configure extra public RSS URLs in BPI_RSS_FEEDS as a comma-separated list, then restart the app. Enabled RSS, GitHub and public web-search connectors run in the background at their saved intervals (default 120 minutes); “Scan sources” starts a manual check. Sources that require credentials or access are never polled.',
       evidencePolicy: 'Evidence policy', evidencePolicyText: 'Collected titles and keyword matches are leads for manual verification. Funding, founders, participation requirements, and costs remain unknown until entered with supporting evidence. No wallet actions or automated campaign participation are performed.',
       ready: 'Active', notConfigured: 'Not connected', error: 'Error', runScreen: '☷  Run initial screening', screening: 'Screening…', screenDone: 'Initial screening complete', sourceStatuses: { ACTIVE: 'Active', 'API REQUIRED': 'API required', 'ACCESS REQUIRED': 'Access required', DISABLED: 'Disabled', ERROR: 'Error', 'NEEDS VALIDATION': 'Needs validation', Ready: 'Active', 'Not configured': 'Not connected', Error: 'Error' },
       topEmpty: 'No projects have completed deep review and evidence verification yet. Initial screening keeps candidates in a separate review queue.', topRank: 'Rank', topProject: 'Project', topCategory: 'Category', topStage: 'Stage', topScore: 'Score', topConfidence: 'Confidence', topFunding: 'Funding', topInvestors: 'Investors', topCost: 'Entry cost', topParticipation: 'Participation', topDeadline: 'Deadline', topOpportunity: 'Opportunity', topWebsite: 'Website', topUpdated: 'Updated',
@@ -89,9 +92,12 @@ const copy = {
     },
     ui: {
       brand: 'НЕЗАВИСИМЫЙ WEB3 РАДАР', local: '● ЛОКАЛЬНО', exportCsv: 'Экспорт CSV', exportJson: 'Экспорт JSON', scan: '↻  Проверить источники',
-      projects: 'ПРОЕКТЫ В БАЗЕ', projectsHint: 'Локальные досье проектов', signals: 'НОВЫЕ СИГНАЛЫ', signalsHint: 'Ссылки на источники',
-      waitlists: 'ЛИСТЫ ОЖИДАНИЯ', waitlistsHint: 'Сигналы для проверки', sources: 'ИСТОЧНИКИ НА СВЯЗИ', sourcesHint: 'Готовы к сбору',
-      feed: 'ЛЕНТА ОБНАРУЖЕНИЙ', latest: 'Последние находки', search: 'Поиск проектов…', recent: 'Сначала новые', scoreSort: 'По оценке возможности',
+      projects: 'ДОСЬЕ В БАЗЕ', projectsHint: 'Записи и итоги первичного отбора', signals: 'СВЯЗИ С ИСТОЧНИКАМИ', signalsHint: 'Сохранённые ссылки-доказательства',
+      waitlists: 'ЛИСТЫ ОЖИДАНИЯ', waitlistsHint: 'Сигналы для проверки', sources: 'АКТИВНЫЕ ИСТОЧНИКИ', sourcesHint: 'Готовы к сбору',
+      feed: 'ЛЕНТА ОБНАРУЖЕНИЙ', latest: 'Последние находки', search: 'Поиск проектов…', recent: 'Сначала новые', scoreSort: 'По оценке возможности', nameSort: 'По названию',
+      categoryFilter: 'Все категории', stageFilter: 'Все стадии', screeningFilter: 'Все статусы отбора', filterEmpty: 'По этим условиям ничего не найдено. Снимите один из фильтров или измените запрос.',
+      resultCount: (shown, total) => `Показано ${shown} из ${total} досье`, excludedCount: count => `${count} отклонены первичным отбором — см. «Отложенные / отклонённые».`,
+      statusLabels: { PENDING: 'Ожидают', REVIEW: 'На проверке', PASS: 'Прошли', REJECTED: 'Отклонены' },
       sourceHealth: 'СОСТОЯНИЕ ИСТОЧНИКОВ', connectors: 'Подключения', viewAll: 'Все источники', changelog: 'ИЗМЕНЕНИЯ', recentEvents: 'Последние события',
       disclaimer: 'Ранние сигналы — это зацепки для самостоятельной проверки. Оценки и стадии приблизительны и не являются инвестиционной рекомендацией.',
       localDb: 'ЛОКАЛЬНАЯ БАЗА АКТИВНА', localOnly: 'Данные хранятся на этом устройстве', empty: 'Пока проектов нет. Проверьте подключённые источники, чтобы найти ранние сигналы.',
@@ -105,7 +111,7 @@ const copy = {
       notIdentified: 'Не найден', unknown: 'Неизвестно', addWatch: 'В избранное', removeWatch: 'Убрать из избранного', firstSeen: 'Впервые найден',
       evidenceLink: 'Подтверждение', scanDone: 'Проверка завершена', newSignals: 'новых сигналов', scanFailed: 'Ошибка проверки',
       nothingChanged: 'Изменений пока нет.', projectDiscovered: 'Проект обнаружен', newSourceSignal: 'Новый сигнал из источника',
-      localSettings: 'Локальные данные и сбор', localSettingsText: 'Данные хранятся локально в базе SQLite внутри папки проекта. Путь можно изменить через BPI_DATA_DIR. Дополнительные открытые RSS-ленты задаются через BPI_RSS_FEEDS, после чего приложение нужно перезапустить. Активные RSS и GitHub-коннекторы проверяются в фоне с заданными интервалами (по умолчанию — 120 минут); кнопка «Проверить источники» запускает ручную проверку. Источники, которым нужен API-ключ или доступ, автоматически не опрашиваются.',
+      localSettings: 'Локальные данные и сбор', localSettingsText: 'Данные хранятся локально в базе SQLite внутри папки проекта. Путь можно изменить через BPI_DATA_DIR. Дополнительные открытые RSS-ленты задаются через BPI_RSS_FEEDS, после чего приложение нужно перезапустить. Активные RSS, GitHub и публичный веб-поиск проверяются в фоне с заданными интервалами (по умолчанию — 120 минут); кнопка «Проверить источники» запускает ручную проверку. Источники, которым нужен API-ключ или доступ, автоматически не опрашиваются.',
       evidencePolicy: 'Как проверяются сведения', evidencePolicyText: 'Заголовки публикаций и совпадения по ключевым словам — это зацепки для ручной проверки. Информация о финансировании, основателях, требованиях и стоимости участия остаётся неизвестной, пока для неё нет подтверждающей ссылки. Приложение не подключает кошельки и не выполняет задания за пользователя.',
       ready: 'Активен', notConfigured: 'Не подключён', error: 'Ошибка', runScreen: '☷  Провести первичный отбор', screening: 'Идёт отбор…', screenDone: 'Первичный отбор завершён', sourceStatuses: { ACTIVE: 'Активен', 'API REQUIRED': 'Нужен API', 'ACCESS REQUIRED': 'Нужен доступ', DISABLED: 'Отключён', ERROR: 'Ошибка', 'NEEDS VALIDATION': 'Нужна проверка', Ready: 'Активен', 'Not configured': 'Не подключён', Error: 'Ошибка' },
       topEmpty: 'Проекты ещё не прошли углублённую проверку и подтверждение фактов. Кандидаты первичного отбора остаются в отдельной очереди.', topRank: 'Место', topProject: 'Проект', topCategory: 'Категория', topStage: 'Стадия', topScore: 'Оценка', topConfidence: 'Достоверность', topFunding: 'Финансирование', topInvestors: 'Фонды', topCost: 'Стоимость входа', topParticipation: 'Участие', topDeadline: 'Срок', topOpportunity: 'Почему интересен', topWebsite: 'Сайт', topUpdated: 'Обновлено',
@@ -257,8 +263,15 @@ function applyLanguage() {
   };
   for (const [selector, key] of Object.entries(staticLabels)) setText(selector, tr(key));
   $('#search').placeholder = tr('search');
+  $('#search-label').textContent = tr('search');
   $('#sort').options[0].text = tr('recent');
   $('#sort').options[1].text = tr('scoreSort');
+  $('#sort').options[2].text = tr('nameSort');
+  $('#filter-category').setAttribute('aria-label', tr('categoryFilter'));
+  $('#filter-stage').setAttribute('aria-label', tr('stageFilter'));
+  $('#filter-screening').setAttribute('aria-label', tr('screeningFilter'));
+  refreshFilterOptions();
+  updateNavigationCounts();
   const [heading, subtitle] = c.headings[currentView];
   setText('#heading', heading);
   setText('#subheading', subtitle);
@@ -269,6 +282,16 @@ async function api(url, options) {
   const response = await fetch(url, options);
   if (!response.ok) throw Error(await response.text());
   return response.json();
+}
+
+async function fetchAllProjects() {
+  const pageSize = 500;
+  const projects = [];
+  while (true) {
+    const page = await api(`/api/projects?limit=${pageSize}&offset=${projects.length}`);
+    projects.push(...page);
+    if (page.length < pageSize) return projects;
+  }
 }
 
 function matches(project) {
@@ -286,9 +309,74 @@ function matches(project) {
   return true;
 }
 
+function isRejected(project) {
+  return project.level1_status === 'REJECTED' || project.manual_status === 'REJECTED' || project.manual_status === 'LATER';
+}
+
+function formatCount(value) {
+  return new Intl.NumberFormat(language === 'ru' ? 'ru-RU' : 'en-US').format(value);
+}
+
+function refreshFilterOptions() {
+  const categorySelect = $('#filter-category');
+  const stageSelect = $('#filter-stage');
+  const screeningSelect = $('#filter-screening');
+  if (!categorySelect || !stageSelect || !screeningSelect) return;
+  const selected = [categorySelect.value, stageSelect.value, screeningSelect.value];
+  const ui = copy[language].ui;
+  categorySelect.innerHTML = `<option value="">${safe(ui.categoryFilter)}</option>` + [...new Set(allProjects.map(project => project.category).filter(Boolean))].sort((a, b) => a.localeCompare(b)).map(value => `<option value="${safe(value)}">${safe(categoryName(value))}</option>`).join('');
+  stageSelect.innerHTML = `<option value="">${safe(ui.stageFilter)}</option>` + [...new Set(allProjects.map(project => project.stage).filter(Boolean))].sort((a, b) => a.localeCompare(b)).map(value => `<option value="${safe(value)}">${safe(stageName(value))}</option>`).join('');
+  const statuses = ['PENDING', 'REVIEW', 'PASS', ...(currentView === 'dossiers' || currentView === 'rejected' ? ['REJECTED'] : [])];
+  screeningSelect.innerHTML = `<option value="">${safe(ui.screeningFilter)}</option>` + statuses.map(value => `<option value="${value}">${safe(ui.statusLabels[value])}</option>`).join('');
+  if ([...categorySelect.options].some(option => option.value === selected[0])) categorySelect.value = selected[0];
+  if ([...stageSelect.options].some(option => option.value === selected[1])) stageSelect.value = selected[1];
+  if ([...screeningSelect.options].some(option => option.value === selected[2])) screeningSelect.value = selected[2];
+}
+
+function updateNavigationCounts() {
+  const notRejected = project => !isRejected(project);
+  const reviewQueue = project => ['PASS', 'REVIEW', 'PENDING'].includes(project.level1_status) && project.level2_status !== 'COMPLETE' && project.manual_status !== 'REJECTED';
+  const counts = {
+    radar: allProjects.filter(notRejected).length,
+    new: allProjects.filter(notRejected).length,
+    incubation: allProjects.filter(project => notRejected(project) && ['Discovered', 'Beta'].includes(project.stage)).length,
+    testnet: allProjects.filter(project => notRejected(project) && ['Testnet', 'Participation'].includes(project.stage)).length,
+    waitlist: allProjects.filter(project => notRejected(project) && project.stage === 'Waitlist').length,
+    funded: allProjects.filter(project => notRejected(project) && (project.funding_count || 0) > 0).length,
+    late: allProjects.filter(project => notRejected(project) && ['Mainnet', 'Live'].includes(project.stage)).length,
+    myTop: allProjects.filter(project => project.level1_status === 'PASS' && project.level2_status === 'COMPLETE' && project.verification_status === 'VERIFIED' && project.opportunity_score >= 60 && project.confidence >= 60).length,
+    reviewQueue: allProjects.filter(reviewQueue).length,
+    watchlist: allProjects.filter(project => project.watchlisted && project.manual_status !== 'REJECTED').length,
+    rejected: allProjects.filter(isRejected).length,
+    dossiers: allProjects.length,
+    sources: allSources.length,
+    settings: null
+  };
+  document.querySelectorAll('nav button[data-nav]').forEach(button => {
+    const value = counts[button.dataset.nav];
+    const badge = button.querySelector('.nav-count');
+    if (value === null || value === undefined) { badge?.remove(); return; }
+    const countBadge = badge || document.createElement('span');
+    countBadge.className = 'nav-count';
+    countBadge.textContent = formatCount(value);
+    if (!badge) button.append(countBadge);
+    button.setAttribute('aria-label', `${copy[language].nav[button.dataset.nav]} · ${formatCount(value)}`);
+  });
+}
+
+function matchesControls(project) {
+  if ($('#filter-category').value && project.category !== $('#filter-category').value) return false;
+  if ($('#filter-stage').value && project.stage !== $('#filter-stage').value) return false;
+  const status = $('#filter-screening').value;
+  if (status && (status === 'REJECTED' ? !isRejected(project) : project.level1_status !== status)) return false;
+  const query = $('#search').value.trim().toLocaleLowerCase();
+  const searchable = `${project.name || ''} ${project.description || ''} ${project.category || ''} ${project.ecosystem || ''} ${project.source_names || ''}`.toLocaleLowerCase();
+  return !query || searchable.includes(query);
+}
+
 function renderSources() {
   $('#project-list').innerHTML = allSources.map(source => {
-    const supported = (source.kind === 'RSS' && externalHref(source.url)) || source.name === 'GitHub Repository Search';
+    const supported = (source.kind === 'RSS' && externalHref(source.url)) || ['GitHub Repository Search', 'DuckDuckGo Web Discovery'].includes(source.name);
     const controls = supported ? `<div class="source-settings"><label><input type="checkbox" data-source-enabled ${source.enabled ? 'checked' : ''}> ${safe(copy[language].ui.monitorSource)}</label><label>${safe(copy[language].ui.interval)} <input type="number" data-source-cadence min="15" max="10080" step="15" value="${Math.max(15, source.cadence_minutes || 120)}"></label><button class="button quiet" data-source-save>${safe(copy[language].ui.saveSource)}</button></div>` : '';
     return `<article class="project-card"><div class="card-top"><div><div class="project-name">${safe(source.name)}</div><div class="source-kind">${safe(sourceGroupName(source.source_group || source.kind))}</div><div class="card-description">${safe(sourceDetail(source))}${externalHref(source.url) ? `<br><a target="_blank" rel="noopener noreferrer" href="${externalHref(source.url)}">${safe(source.url)}</a>` : ''}${source.enabled && source.cadence_minutes ? `<br>${language === 'ru' ? 'Интервал: ' : 'Interval: '}${source.cadence_minutes} ${language === 'ru' ? 'мин.' : 'min'}` : ''}${source.last_checked ? `<br>${language === 'ru' ? 'Последняя проверка: ' : 'Last checked: '}${safe(dateTime(source.last_checked))}` : ''}${source.last_run_error ? `<br><span class="status error">${safe(source.last_run_error)}</span>` : ''}</div>${controls}</div><span class="status ${source.status === 'ERROR' || source.status === 'Error' ? 'error' : source.status !== 'ACTIVE' && source.status !== 'Ready' ? 'off' : ''}">● ${safe(statusName(source.status))}</span></div><div class="tag-row"><span class="tag">${safe(kindName(source.kind))}</span><span class="tag">${source.enabled ? (language === 'ru' ? 'Автопроверка включена' : 'Monitoring enabled') : (language === 'ru' ? 'Не собирается автоматически' : 'Not polled automatically')}</span></div></article>`;
   }).join('');
@@ -321,23 +409,31 @@ function emptyMessage(view) {
 
 function render() {
   setText('#list-title', currentView === 'radar' ? tr('latest') : copy[language].headings[currentView][0]);
+  const showFilters = !['sources', 'settings', 'myTop'].includes(currentView);
+  $('#project-controls').classList.toggle('hidden', !showFilters);
+  $('#result-count').classList.toggle('hidden', !showFilters);
   if (currentView === 'sources') return renderSources();
   if (currentView === 'settings') return renderSettings();
   if (currentView === 'myTop') return renderTopProjects();
-  if (currentView === 'myTop') return renderTopProjects();
-  const query = $('#search').value.toLocaleLowerCase();
-  let projects = allProjects.filter(matches).filter(project => !query || `${project.name} ${project.description || ''} ${project.category}`.toLocaleLowerCase().includes(query));
+  const viewProjects = allProjects.filter(matches);
+  let projects = viewProjects.filter(matchesControls);
   if ($('#sort').value === 'score') projects.sort((a, b) => b.opportunity_score - a.opportunity_score);
+  if ($('#sort').value === 'name') projects.sort((a, b) => (a.name || '').localeCompare(b.name || '', language));
   $('#project-list').innerHTML = projects.map(project => {
     const visitUrl = externalHref(project.website);
     const description = (language === 'ru' && project.translated_description) || project.description || tr('noDescription');
-    return `<article class="project-card" data-id="${project.id}"><div class="card-top"><div><div class="project-name">${safe(project.name)}</div><div class="card-description" data-description>${safe(description)}</div><button class="button quiet translate-description" data-translate>${safe(tr('translate'))}</button>${visitUrl ? `<a class="button quiet project-visit" target="_blank" rel="noopener noreferrer" href="${visitUrl}">${safe(tr('openWebsite'))}</a>` : ''}</div><div class="score">${project.opportunity_score}<small> / 100</small><br><small>${safe(tr('opportunity'))}</small></div></div><div class="tag-row"><span class="tag stage">${safe(tr('signal'))} ${safe(stageName(project.stage))}</span><span class="tag">${safe(categoryName(project.category))}</span><span class="tag">${safe(project.source_names || tr('sourcePending'))}</span><span class="tag warn">${safe(tr('evidence'))} ${project.confidence}%</span><span class="tag">${safe(tr('participation'))}: ${safe(unknownValue(project.participation))}</span><span class="tag">${safe(tr('cost'))}: ${safe(unknownValue(project.cost))}</span>${project.level1_status ? `<span class="tag ${project.level1_status === 'REJECTED' ? 'warn' : ''}">${language === 'ru' ? 'Первичная проверка' : 'Initial screen'}: ${safe(project.level1_status)}</span>` : ''}</div></article>`;
+    return `<article class="project-card" data-id="${project.id}" tabindex="0" aria-labelledby="project-name-${project.id}"><div class="card-top"><div><div class="project-name" id="project-name-${project.id}">${safe(project.name)}</div><div class="card-description" data-description>${safe(description)}</div><div class="card-actions"><button class="button quiet translate-description" data-translate>${safe(tr('translate'))}</button>${visitUrl ? `<a class="button quiet project-visit" target="_blank" rel="noopener noreferrer" href="${visitUrl}">${safe(tr('openWebsite'))}</a>` : ''}</div></div><div class="score">${project.opportunity_score}<small> / 100</small><br><small>${safe(tr('opportunity'))}</small></div></div><div class="tag-row"><span class="tag stage">${safe(tr('signal'))} ${safe(stageName(project.stage))}</span><span class="tag">${safe(categoryName(project.category))}</span><span class="tag">${safe(project.source_names || tr('sourcePending'))}</span><span class="tag warn">${safe(tr('evidence'))} ${project.confidence}%</span><span class="tag">${safe(tr('participation'))}: ${safe(unknownValue(project.participation))}</span><span class="tag">${safe(tr('cost'))}: ${safe(unknownValue(project.cost))}</span>${project.level1_status ? `<span class="tag ${project.level1_status === 'REJECTED' ? 'warn' : ''}">${language === 'ru' ? 'Первичная проверка' : 'Initial screen'}: ${safe(project.level1_status)}</span>` : ''}</div></article>`;
   }).join('');
+  const hiddenFromActivePool = currentView === 'dossiers' || currentView === 'rejected' ? 0 : allProjects.filter(isRejected).length;
+  const countCopy = copy[language].ui;
+  $('#result-count').textContent = `${countCopy.resultCount(formatCount(projects.length), formatCount(allProjects.length))}${hiddenFromActivePool ? ` · ${countCopy.excludedCount(formatCount(hiddenFromActivePool))}` : ''}`;
   $('#empty').classList.toggle('hidden', projects.length > 0);
-  $('#empty').textContent = emptyMessage(currentView);
+  const hasFilters = $('#search').value.trim() || $('#filter-category').value || $('#filter-stage').value || $('#filter-screening').value;
+  $('#empty').textContent = hasFilters ? tr('filterEmpty') : emptyMessage(currentView);
   $('.project-list').classList.toggle('hidden', projects.length === 0);
   document.querySelectorAll('.project-card[data-id]').forEach(card => {
-    card.onclick = () => showDetail(card.dataset.id);
+    card.onclick = event => { if (!event.target.closest('a,button,input,select,textarea')) showDetail(card.dataset.id); };
+    card.onkeydown = event => { if (event.target === card && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); showDetail(card.dataset.id); } };
     card.querySelectorAll('.project-visit').forEach(link => { link.onclick = event => event.stopPropagation(); });
     const project = allProjects.find(item => String(item.id) === card.dataset.id);
     const translateButton = card.querySelector('[data-translate]');
@@ -353,7 +449,7 @@ async function load() {
   const retry = $('#load-retry');
   retry.disabled = true;
   const [projectResult, sourceResult, eventResult] = await Promise.allSettled([
-    api('/api/projects'), api('/api/sources'), api('/api/events')
+    fetchAllProjects(), api('/api/sources'), api('/api/events')
   ]);
   if (projectResult.status === 'rejected') {
     setText('#load-notice-text', `${language === 'ru' ? 'Не удалось загрузить проекты' : 'Could not load projects'}: ${projectResult.reason.message || projectResult.reason}`);
@@ -364,10 +460,17 @@ async function load() {
   allProjects = Array.isArray(projectResult.value) ? projectResult.value : [];
   allSources = sourceResult.status === 'fulfilled' && Array.isArray(sourceResult.value) ? sourceResult.value : [];
   const events = eventResult.status === 'fulfilled' && Array.isArray(eventResult.value) ? eventResult.value : [];
+  refreshFilterOptions();
+  updateNavigationCounts();
   setText('#metric-projects', allProjects.length);
   setText('#metric-signals', allProjects.reduce((count, project) => count + (project.signal_count || 0), 0));
   setText('#metric-waitlists', allProjects.filter(project => project.stage === 'Waitlist').length);
   setText('#metric-sources', sourceResult.status === 'fulfilled' ? allSources.filter(source => source.status === 'ACTIVE' && source.enabled).length : '—');
+  const screeningCounts = allProjects.reduce((counts, project) => { const status = isRejected(project) ? 'REJECTED' : (project.level1_status || 'PENDING'); counts[status] = (counts[status] || 0) + 1; return counts; }, {});
+  const queuedProjects = allProjects.filter(project => ['PASS', 'REVIEW', 'PENDING'].includes(project.level1_status) && project.level2_status !== 'COMPLETE' && project.manual_status !== 'REJECTED').length;
+  setText('#metric-hint-projects', language === 'ru' ? `В очереди ${formatCount(queuedProjects)} · отклонено ${formatCount(screeningCounts.REJECTED || 0)}` : `${formatCount(queuedProjects)} in review · ${formatCount(screeningCounts.REJECTED || 0)} rejected`);
+  setText('#metric-hint-signals', language === 'ru' ? `${formatCount(allProjects.length)} досье · ${formatCount(allProjects.reduce((count, project) => count + (project.signal_count || 0), 0))} ссылок` : `${formatCount(allProjects.length)} dossiers · ${formatCount(allProjects.reduce((count, project) => count + (project.signal_count || 0), 0))} links`);
+  setText('#metric-hint-sources', sourceResult.status === 'fulfilled' ? (language === 'ru' ? `${formatCount(allSources.filter(source => source.status === 'ACTIVE' && source.enabled).length)} активны · ${formatCount(allSources.length)} в реестре` : `${formatCount(allSources.filter(source => source.status === 'ACTIVE' && source.enabled).length)} active · ${formatCount(allSources.length)} registered`) : '—');
   $('#source-mini').innerHTML = [...allSources].sort((a,b) => Number(b.status === 'ACTIVE' && b.enabled) - Number(a.status === 'ACTIVE' && a.enabled)).slice(0, 5).map(source => `<div class="source-row"><div>${safe(source.name)}<div class="source-kind">${safe(kindName(source.kind))}</div></div><span class="status ${source.status === 'ERROR' ? 'error' : source.status !== 'ACTIVE' ? 'off' : ''}">● ${safe(statusName(source.status))}</span></div>`).join('');
   $('#event-list').innerHTML = events.slice(0, 6).map(event => `<div class="event"><b>${safe(event.project_name)} · ${safe(eventType(event.event_type))}</b><p>${safe(eventSummary(event.summary))}</p><time>${safe(dateTime(event.created_at))}</time></div>`).join('') || `<div class="disclaimer">${safe(eventResult.status === 'rejected' ? (language === 'ru' ? 'Лента событий временно недоступна.' : 'The event feed is temporarily unavailable.') : tr('nothingChanged'))}</div>`;
   render();
@@ -433,6 +536,7 @@ $('#language').onchange = event => {
   language = event.target.value;
   localStorage.setItem('bpiLanguage', language);
   applyLanguage();
+  load().catch(error => toast(`${tr('scanFailed')} · ${error.message}`));
 };
 $('#scan').onclick = async () => {
   const button = $('#scan');
@@ -464,6 +568,9 @@ $('#screen').onclick = async () => {
 };
 $('#search').oninput = render;
 $('#sort').onchange = render;
+$('#filter-category').onchange = render;
+$('#filter-stage').onchange = render;
+$('#filter-screening').onchange = render;
 $('#load-retry').onclick = () => load().catch(error => toast(`${tr('scanFailed')} · ${error.message}`));
 $('#nav').onclick = event => {
   const button = event.target.closest('button[data-nav]');
@@ -473,6 +580,7 @@ document.querySelectorAll('[data-view]').forEach(button => { button.onclick = ()
 function setView(view) {
   currentView = view;
   document.querySelectorAll('nav button[data-nav]').forEach(button => button.classList.toggle('active', button.dataset.nav === view));
+  refreshFilterOptions();
   const [heading, subtitle] = copy[language].headings[view];
   setText('#heading', heading);
   setText('#subheading', subtitle);

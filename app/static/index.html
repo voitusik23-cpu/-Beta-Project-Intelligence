@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080d14">
-  <title>Beta Project Intelligence</title><link rel="icon" type="image/svg+xml" href="/static/brand.svg"><link rel="stylesheet" href="/static/style.css?v=20261102-ui5">
+  <title>Beta Project Intelligence</title><link rel="icon" type="image/svg+xml" href="/static/brand.svg"><link rel="stylesheet" href="/static/style.css?v=20261104-ui8">
 </head>
 <body>
 <aside class="sidebar">
@@ -25,14 +25,20 @@
     <div class="header-actions"><select class="language-select" id="language" aria-label="Язык интерфейса"><option value="ru">Русский</option><option value="en">English</option></select><a id="export-csv" class="button quiet" href="/api/export.csv">Экспорт CSV</a><a id="export-json" class="button quiet" href="/api/export.json">Экспорт JSON</a><button class="button" id="screen">☷  Первичный отбор</button><button class="button primary" id="scan">↻  Проверить источники</button></div>
   </header>
   <section class="metrics">
-    <article><span id="metric-label-projects">ПРОЕКТЫ В БАЗЕ</span><strong id="metric-projects">—</strong><small id="metric-hint-projects">Локальные досье проектов</small></article>
-    <article><span id="metric-label-signals">НОВЫЕ СИГНАЛЫ</span><strong id="metric-signals">—</strong><small id="metric-hint-signals">Ссылки на источники</small></article>
+    <article><span id="metric-label-projects">ДОСЬЕ В БАЗЕ</span><strong id="metric-projects">—</strong><small id="metric-hint-projects">Локальные досье проектов</small></article>
+    <article><span id="metric-label-signals">СВЯЗИ С ИСТОЧНИКАМИ</span><strong id="metric-signals">—</strong><small id="metric-hint-signals">Ссылки на источники</small></article>
     <article><span id="metric-label-waitlists">ЛИСТЫ ОЖИДАНИЯ</span><strong id="metric-waitlists">—</strong><small id="metric-hint-waitlists">Сигналы для проверки</small></article>
-    <article><span id="metric-label-sources">ИСТОЧНИКИ НА СВЯЗИ</span><strong id="metric-sources">—</strong><small id="metric-hint-sources">Готовы к сбору</small></article>
+    <article><span id="metric-label-sources">АКТИВНЫЕ ИСТОЧНИКИ</span><strong id="metric-sources">—</strong><small id="metric-hint-sources">Готовы к сбору</small></article>
   </section>
   <div id="load-notice" class="load-notice hidden" role="status" aria-live="polite"><span id="load-notice-text"></span><button id="load-retry" class="button quiet">Повторить загрузку</button></div>
   <div class="content-grid">
-    <section class="panel projects-panel"><div class="panel-head"><div><div id="feed-label" class="eyebrow">ЛЕНТА ОБНАРУЖЕНИЙ</div><h2 id="list-title">Последние находки</h2></div><div class="controls"><input id="search" placeholder="Поиск проектов…"><select id="sort"><option value="recent">Сначала новые</option><option value="score">По оценке возможности</option></select></div></div><div id="project-list" class="project-list"></div><div id="empty" class="empty hidden">Пока проектов нет. Проверьте подключённые источники, чтобы найти ранние сигналы.</div></section>
+    <section class="panel projects-panel"><div class="panel-head"><div><div id="feed-label" class="eyebrow">ЛЕНТА ОБНАРУЖЕНИЙ</div><h2 id="list-title">Последние находки</h2></div><div class="controls" id="project-controls">
+      <label class="search-control"><span class="sr-only" id="search-label">Поиск проектов</span><input id="search" aria-labelledby="search-label" placeholder="Поиск проектов…"></label>
+      <select id="filter-category" aria-label="Фильтр по категории"><option value="">Все категории</option></select>
+      <select id="filter-stage" aria-label="Фильтр по стадии"><option value="">Все стадии</option></select>
+      <select id="filter-screening" aria-label="Фильтр по проверке"><option value="">Все статусы</option></select>
+      <select id="sort" aria-label="Сортировка"><option value="recent">Сначала новые</option><option value="score">По оценке возможности</option><option value="name">По названию</option></select>
+    </div></div><div id="result-count" class="result-count" role="status" aria-live="polite"></div><div id="project-list" class="project-list" aria-live="polite"></div><div id="empty" class="empty hidden">Пока проектов нет. Проверьте подключённые источники, чтобы найти ранние сигналы.</div></section>
     <aside class="right-column">
       <section class="panel"><div class="panel-head"><div><div id="source-health" class="eyebrow">СОСТОЯНИЕ ИСТОЧНИКОВ</div><h2 id="connectors">Подключения</h2></div><button id="view-all" class="text-button" data-view="sources">Все источники</button></div><div id="source-mini"></div></section>
       <section class="panel"><div class="panel-head"><div><div id="changelog-label" class="eyebrow">ИЗМЕНЕНИЯ</div><h2 id="recent-events">Последние события</h2></div></div><div id="event-list" class="event-list"></div></section>
@@ -40,6 +46,6 @@
     </aside>
   </div>
 </main>
-<dialog id="detail"></dialog><div id="toast" class="toast"></div><script src="/static/app.js?v=20261102-ui5"></script>
+<dialog id="detail"></dialog><div id="toast" class="toast" role="status" aria-live="polite"></div><script src="/static/app.js?v=20261104-ui8"></script>
 </body>
 </html>
